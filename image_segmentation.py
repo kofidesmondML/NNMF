@@ -9,13 +9,15 @@ from nnmf import multiplicative_update, als  # Ensure this returns W, H with int
 img = data.camera()
 V = img_as_float(img)
 m, n = V.shape
+print(m,n)
 
 # Reshape the image to matrix form for NMF
 V_reshaped = V.reshape((m, n))
+#print(V.shape)
 
 # Apply NMF
-rank = 5  # Number of segments/components
-W, H = multiplicative_update(V_reshaped, k=rank, max_iter=200)
+rank = 10  # Number of segments/components
+W, H = multiplicative_update(V, k=rank, max_iter=200)
 
 # Segment the image using KMeans on the W matrix
 # Each row of W represents the membership of a pixel to a component
@@ -35,7 +37,7 @@ plt.axis('off')
 
 plt.subplot(1, 2, 2)
 plt.title("Segmented Image (NMF + KMeans)")
-plt.imshow(segmented_image, cmap='tab10')  # categorical colormap
+plt.imshow(segmented_image, cmap='gray')  # categorical colormap
 plt.axis('off')
 plt.tight_layout()
 plt.show()
