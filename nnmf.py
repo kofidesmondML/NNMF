@@ -37,17 +37,17 @@ def gradient_descent(V, r, eta=0.001, max_iter=200, tol=1e-4, verbose=False):
 
 
 # ---------- Multiplicative Update NMF ----------
-def multiplicative_update(X, k=50, max_iter=200, epsilon=1e-10, tol=1e-4, verbose=True, random_state=42):
+def multiplicative_update(V, k=50, max_iter=1000, epsilon=1e-10, tol=1e-4, verbose=True, random_state=42):
     np.random.seed(random_state)
-    m, n = X.shape
+    m, n = V.shape
     W = np.random.rand(m, k)
     H = np.random.rand(k, n)
     for t in range(max_iter):
         WH = W @ H
-        H *= (W.T @ X) / (W.T @ WH + epsilon)
-        W *= (X @ H.T) / (WH @ H.T + epsilon)
+        H *= (W.T @ V) / (W.T @ WH + epsilon)
+        W *= (V @ H.T) / (WH @ H.T + epsilon)
         V_hat = W @ H
-        error = np.linalg.norm(X - V_hat, 'fro')
+        error = np.linalg.norm(V - V_hat, 'fro')
         if verbose and t % 100 == 0:
             print(f"[{t}] Reconstruction error: {error:.6f}")
         if error < tol:
