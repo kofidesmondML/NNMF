@@ -14,13 +14,14 @@ m, n = original_image.shape
 
 noise_std = 0.1
 np.random.seed(0)
-noise = np.random.normal(0, noise_std, original_image.shape)
-noisy_image = original_image + noise, 0, 1
+noise = np.random.normal(0, noise_std**0.5, original_image.shape)
+print(noise)
+noisy_image = np.clip(original_image + noise,0,1)
 plt.imsave('noisy_mandrill.jpg',noisy_image, cmap='gray')
 
 plt.imsave('denoising_results/noisy_image.jpg', noisy_image, cmap='gray')
 
-percentages=[0.01, 0.05]
+percentages=[0.01, 0.05, 0.1, 0.2]
 solvers = ['mu', 'cd']
 results = []
 full_rank= np.linalg.matrix_rank(noisy_image)
@@ -42,7 +43,7 @@ for perc in percentages:
             mse = np.mean((original_image - reconstructed) ** 2)
             psnr = 10 * np.log10(1.0 / mse)
 
-            img_filename = f'denoising_results/reconstructed_{solver}.jpg'
+            img_filename = f'denoising_results/reconstructed_{perc}_{solver}.jpg'
             plt.imsave(img_filename, reconstructed, cmap='gray')
 
             results.append({
