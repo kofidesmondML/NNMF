@@ -21,7 +21,7 @@ plt.imsave('noisy_mandrill.jpg',noisy_image, cmap='gray')
 
 plt.imsave('denoising_results/noisy_image.jpg', noisy_image, cmap='gray')
 
-percentages=[0.01, 0.05, 0.1, 0.2]
+percentages=[0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.85, 0.90, 1]
 solvers = ['mu', 'cd']
 results = []
 full_rank= np.linalg.matrix_rank(noisy_image)

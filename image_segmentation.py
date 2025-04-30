@@ -1,43 +1,43 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import data, img_as_float
-from sklearn.preprocessing import normalize
-from sklearn.cluster import KMeans
-from nnmf import multiplicative_update, als  # Ensure this returns W, H with internal init
+from sklearn.decomposition import NMF
+import cv2
+from skimage.color import rgb2gray
+from skimage.io import imread
+from skimage.transform import resize
 
-# Load and preprocess image
-img = data.camera()
-V = img_as_float(img)
-m, n = V.shape
-print(m,n)
+mandrill_gray =cv2.imread('gray_mandrill.jpg', cv2.IMREAD_GRAYSCALE)
 
-# Reshape the image to matrix form for NMF
-V_reshaped = V.reshape((m, n))
-#print(V.shape)
+# Step 3: Apply NMF
+# Note: grayscale image is shape (512, 512) → treat rows as samples
+model = NMF(n_components=15, init='random', random_state=0)
+W = model.fit_transform(mandrill_gray)
+H = model.components_
 
-# Apply NMF
-rank = 10  # Number of segments/components
-W, H = multiplicative_update(V, k=rank, max_iter=200)
+# Reconstruct image
+reconstructed = np.dot(W, H)
 
-# Segment the image using KMeans on the W matrix
-# Each row of W represents the membership of a pixel to a component
-W_norm = normalize(W, axis=1)
-kmeans = KMeans(n_clusters=rank, random_state=0)
-labels = kmeans.fit_predict(W_norm)
+# Step 4: Visualize
+plt.figure(figsize=(12, 6))
 
-# Reshape segmentation result to original image shape
-segmented_image = labels.reshape(m, 1).repeat(n, axis=1)
-
-# Display segmentation
-plt.figure(figsize=(10, 4))
-plt.subplot(1, 2, 1)
-plt.title("Original Image")
-plt.imshow(V, cmap='gray')
+# Original image
+plt.subplot(1, 3, 1)
+plt.imshow(mandrill_gray, cmap='gray')
+plt.title('Original Grayscale Image')
 plt.axis('off')
 
-plt.subplot(1, 2, 2)
-plt.title("Segmented Image (NMF + KMeans)")
-plt.imshow(segmented_image, cmap='gray')  # categorical colormap
+# Reconstructed image
+plt.subplot(1, 3, 2)
+plt.imshow(reconstructed, cmap='gray')
+plt.title('Reconstructed (NMF)')
 plt.axis('off')
+
+# Show first few basis components (columns of H)
+plt.subplot(1, 3, 3)
+for i in range(5):
+    plt.plot(H[i], label=f'Component {i+1}')
+plt.title('First 5 NMF Components (H)')
+plt.legend()
+
 plt.tight_layout()
 plt.show()
