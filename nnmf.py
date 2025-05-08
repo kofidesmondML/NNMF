@@ -4,36 +4,26 @@ from scipy.optimize import nnls
 # ---------- Gradient Descent NMF ----------
 def gradient_descent(V, r, eta=0.001, max_iter=200, tol=1e-4, verbose=False):
     m, n = V.shape
-    print(m,n)
-    print(f"Initializing Gradient Descent NMF with V shape: ({m}, {n}), rank: {r}")
     W = np.random.rand(m, r)
     H = np.random.rand(r, n)
-    print("This is the random matrix generated for W")
-    print(W.shape)
-    print()
-    print()
-    print("This is the random matrix generated for H")
-    print(H.shape)
+
     for t in range(1, max_iter + 1):
-        print(t)
         V_hat = W @ H
-        print(V_hat)
-        grad_W = (W.T@V)-(W.T@W@H)
-        print(grad_W)
-        grad_H = (V@H.T)-(W@H@H.T)
-        print(f"[{t}] Updating W and H using gradients")
-        W += eta * grad_W
-        H += eta * grad_H
-        print(W)
-        print(H)
+        grad_W = (V_hat - V) @ H.T
+        grad_H = W.T @ (V_hat - V)
+
+        W -= eta * grad_W
+        H -= eta * grad_H
+        W = np.maximum(W, 0)
+        H = np.maximum(H, 0)
+
         error = np.linalg.norm(V - V_hat, ord='fro')
-        print(f"[{t}] Reconstruction error: {error:.6f}")
         if verbose and t % 100 == 0:
-            print(f"Verbose: Iteration {t}: error = {error:.6f}")
+            print(f"Iteration {t}: error = {error:.6f}")
         if error < tol:
-            print(f"Converged at iteration {t} with error = {error:.6f}")
             break
-    return W,H
+
+    return W, H
 
 
 # ---------- Multiplicative Update NMF ----------
@@ -85,4 +75,5 @@ def als(V, r, max_iter=200, epsilon=1e-4, verbose=False):
         if error < epsilon:
             print(f"Converged at iteration {t} with error = {error:.6f}")
             break
+
     return W, H
