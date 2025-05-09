@@ -6,15 +6,22 @@ df_mul = pd.read_csv("denoising_comparison_results.csv")
 
 metrics = ['MSE', 'PSNR', 'SSIM', 'Time Taken (s)']
 colors = {'mu': 'blue', 'cd': 'orange'}
+solver_names = {'mu': 'Multiplicative Update', 'cd': 'Alternating Least Squares'}
 
 output_dir = "denoising_results"
 os.makedirs(output_dir, exist_ok=True)
 
 for metric in metrics:
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(8, 5))
     for solver in df_mul['Solver'].unique():
         subset = df_mul[df_mul['Solver'] == solver]
-        plt.plot(subset['Rank'], subset[metric], marker='o', label=solver, color=colors.get(solver, None))
+        plt.plot(
+            subset['Rank'],
+            subset[metric],
+            marker='o',
+            label=solver_names.get(solver, solver),
+            color=colors.get(solver, None)
+        )
     plt.title(f'{metric} vs Rank')
     plt.xlabel('Rank')
     plt.ylabel(metric)
@@ -24,4 +31,3 @@ for metric in metrics:
     filepath = os.path.join(output_dir, filename)
     plt.savefig(filepath, dpi=300)
     plt.close()
-
